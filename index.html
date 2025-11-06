@@ -16,14 +16,68 @@
             color: #333;
         }
 
+        /* --- TELA DE REFERÊNCIAS --- */
+        #references-screen {
+            display: flex; /* Mostrado por padrão */
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            margin: 20px;
+        }
+
+        #references-screen h2 {
+            text-align: left;
+            width: 100%;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .references-content {
+            text-align: left;
+            width: 100%;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        .references-content p {
+            margin-bottom: 1.2em;
+        }
+
+        #continue-btn {
+            padding: 12px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            background-color: #5cb85c;
+            color: white;
+        }
+        #continue-btn:hover {
+            background-color: #4cae4c;
+        }
+
+
+        /* --- TELA DO ÁBACO --- */
         .abacus-container {
-            display: flex;
+            /* display: flex; (original) */
             flex-direction: column;
             align-items: center;
             padding: 20px;
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ID para controlar a visibilidade do ábaco */
+        #abacus-main {
+            display: none; /* Começa escondido */
         }
 
         .display {
@@ -152,7 +206,21 @@
 </head>
 <body>
 
-    <div class="abacus-container">
+    <div id="references-screen">
+        <h2>5. Referências</h2>
+        <div class="references-content">
+            <p>BRASIL. Ministério da Educação. Secretaria de Educação Básica. <strong>Base Nacional Comum Curricular</strong>. Brasília: MEC, 2018.</p>
+            
+            <p>GODOI, Lucas Moraes. <strong>História na Educação Matemática: uma proposta didática com o Ábaco dos Números Inteiros</strong>. 2015. Trabalho de Conclusão de Curso (Licenciatura em Matemática) – Instituto de Matemática, Universidade Federal do Rio Grande do Sul, Porto Alegre, 2015.</p>
+            
+            <p>RIPOLL, Cydara Cavedon; WERMANN, Franciele Marciane Meinerz; BLUMBERG, Vanessa Pacheco; DOERING, Luisa Rodriguez. O Ábaco dos Inteiros, concreto e virtual, e os Tijolos Táteis. In: XI Bienal de Matemática, 2024, Porto Alegre. <strong>Anais [...]</strong>. Porto Alegre: SBM, 2024.</p>
+            
+            <p>SILVA, Erickson Gomes Imperador da; CONTI, Keli Cristina. O ábaco dos inteiros: auxílio aos estudantes na compreensão dos números negativos e suas operações. <strong>Revemat – Revista Eletrônica de Educação Matemática</strong>, Florianópolis, v. 11, n. 1, p. 74-83, 2016. DOI: https://doi.org/10.5007/1981-1322.2016v11n1p74</p>
+        </div>
+        <button id="continue-btn">Continuar</button>
+    </div>
+
+    <div class="abacus-container" id="abacus-main">
         
         <div class="display">
             <h2>Valor Total: <span id="total-value">0</span></h2>
@@ -185,6 +253,17 @@
     </div>
 
     <script>
+        // --- LÓGICA DA TELA DE REFERÊNCIAS ---
+        const refScreen = document.getElementById('references-screen');
+        const abacusMain = document.getElementById('abacus-main');
+        const continueBtn = document.getElementById('continue-btn');
+
+        continueBtn.addEventListener('click', () => {
+            refScreen.style.display = 'none'; // Esconde as referências
+            abacusMain.style.display = 'flex'; // Mostra o ábaco (usando 'flex' como no CSS original)
+        });
+
+        // --- LÓGICA ORIGINAL DO ÁBACO ---
         const rodLeft = document.getElementById('rod-left');
         const rodRight = document.getElementById('rod-right');
 
@@ -216,9 +295,14 @@
         }
 
         function addDisk(rodElement, colorClass) {
+            // Limite de 9 discos por haste
+            if (rodElement.children.length >= 9) {
+                return false; // Retorna falso se a haste estiver cheia
+            }
             const disk = document.createElement('div');
             disk.classList.add('disk', colorClass);
             rodElement.appendChild(disk);
+            return true; // Retorna verdadeiro se o disco foi adicionado
         }
 
         function removeDisk(rodElement) {
@@ -229,9 +313,11 @@
 
         // Haste Esquerda (Pretos / Positivos)
         addLeftBtn.addEventListener('click', () => {
-            countLeft++;
-            addDisk(rodLeft, 'black');
-            updateDisplay();
+            // Tenta adicionar o disco
+            if (addDisk(rodLeft, 'black')) {
+                countLeft++; // Só incrementa se o disco foi adicionado
+                updateDisplay();
+            }
         });
 
         removeLeftBtn.addEventListener('click', () => {
@@ -239,18 +325,21 @@
                 countLeft--;
                 removeDisk(rodLeft);
             } else {
-                // Sem positivos → adiciona um negativo
-                countRight++;
-                addDisk(rodRight, 'red');
+                // Sem positivos → adiciona um negativo (se houver espaço)
+                if (addDisk(rodRight, 'red')) {
+                    countRight++;
+                }
             }
             updateDisplay();
         });
 
         // Haste Direita (Vermelhos / Negativos)
         addRightBtn.addEventListener('click', () => {
-            countRight++;
-            addDisk(rodRight, 'red');
-            updateDisplay();
+            // Tenta adicionar o disco
+            if (addDisk(rodRight, 'red')) {
+                countRight++; // Só incrementa se o disco foi adicionado
+                updateDisplay();
+            }
         });
 
         removeRightBtn.addEventListener('click', () => {
@@ -258,9 +347,10 @@
                 countRight--;
                 removeDisk(rodRight);
             } else {
-                // Sem negativos → adiciona um positivo
-                countLeft++;
-                addDisk(rodLeft, 'black');
+                // Sem negativos → adiciona um positivo (se houver espaço)
+                if (addDisk(rodLeft, 'black')) {
+                    countLeft++;
+                }
             }
             updateDisplay();
         });
