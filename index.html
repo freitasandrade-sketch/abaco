@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ábaco Virtual de Inteiros</title>
     <style>
-        /* CSS para estilização */
         body {
             font-family: Arial, sans-serif;
             display: flex;
@@ -17,7 +16,6 @@
             color: #333;
         }
 
-        /* O contêiner principal do ábaco */
         .abacus-container {
             display: flex;
             flex-direction: column;
@@ -28,7 +26,6 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* O visor que mostra o valor total */
         .display {
             text-align: center;
             margin-bottom: 20px;
@@ -56,65 +53,57 @@
             font-size: 0.9em;
         }
 
-        /* Contêiner para as hastes, para alinhá-las */
         .rods-wrapper {
             display: flex;
             justify-content: center;
-            gap: 80px; /* Espaço entre as duas hastes */
-            margin-bottom: -15px; /* Sobrepõe levemente a base */
+            gap: 80px;
+            margin-bottom: -15px;
             position: relative;
             z-index: 1;
         }
 
-        /* Estilo de cada haste */
         .rod {
             width: 15px;
             height: 350px;
-            background-color: #c0c0c0; /* Cor de metal */
+            background-color: #c0c0c0;
             border-radius: 8px 8px 0 0;
             position: relative;
-            
-            /* Chave para empilhar: flex-box reverso */
             display: flex;
-            flex-direction: column-reverse; /* Discos são adicionados "por baixo" e empilham para cima */
+            flex-direction: column-reverse;
             align-items: center;
             padding-bottom: 5px;
         }
 
-        /* A base comum para as duas hastes */
         .base {
             width: 300px;
             height: 30px;
-            background-color: #8B4513; /* Cor de madeira */
+            background-color: #8B4513;
             border-radius: 0 0 10px 10px;
             border: 2px solid #5a2d0c;
             position: relative;
             z-index: 0;
         }
 
-        /* Estilo dos discos */
         .disk {
             width: 60px;
             height: 35px;
-            border-radius: 50%; /* Faz o disco parecer oval */
+            border-radius: 50%;
             margin-bottom: 5px;
             box-shadow: inset 0 -3px 5px rgba(0,0,0,0.3), 0 2px 3px rgba(0,0,0,0.2);
             transition: all 0.1s ease-in-out;
-            flex-shrink: 0; /* Impede que os discos encolham */
+            flex-shrink: 0;
         }
 
-        /* Cores específicas dos discos */
         .disk.black {
             background-color: #222;
             border: 2px solid #000;
         }
 
         .disk.red {
-            background-color: #d9534f; /* Vermelho */
+            background-color: #d9534f;
             border: 2px solid #a94442;
         }
 
-        /* Contêiner para os botões de controle */
         .controls {
             display: flex;
             justify-content: space-around;
@@ -144,28 +133,21 @@
             margin: 0 5px;
         }
 
-        /* Botão Adicionar */
         .btn-add {
-            background-color: #5cb85c; /* Verde */
+            background-color: #5cb85c;
             color: white;
         }
         .btn-add:hover {
             background-color: #4cae4c;
         }
 
-        /* Botão Remover */
         .btn-remove {
-            background-color: #f0ad4e; /* Laranja */
+            background-color: #f0ad4e;
             color: white;
         }
         .btn-remove:hover {
             background-color: #ec971f;
         }
-        .btn-remove:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
     </style>
 </head>
 <body>
@@ -181,10 +163,8 @@
         </div>
 
         <div class="rods-wrapper">
-            <div class="rod" id="rod-left">
-                </div>
-            <div class="rod" id="rod-right">
-                </div>
+            <div class="rod" id="rod-left"></div>
+            <div class="rod" id="rod-right"></div>
         </div>
         
         <div class="base"></div>
@@ -193,21 +173,18 @@
             <div class="control-group">
                 <h3>Positivos (Pretos)</h3>
                 <button id="add-left" class="btn-add" title="Adicionar +1">+</button>
-                <button id="remove-left" class="btn-remove" title="Remover +1" disabled>-</button>
+                <button id="remove-left" class="btn-remove" title="Remover +1">-</button>
             </div>
             <div class="control-group">
                 <h3>Negativos (Vermelhos)</h3>
                 <button id="add-right" class="btn-add" title="Adicionar -1">+</button>
-                <button id="remove-right" class="btn-remove" title="Remover -1" disabled>-</button>
+                <button id="remove-right" class="btn-remove" title="Remover -1">-</button>
             </div>
         </div>
 
     </div>
 
     <script>
-        // JavaScript para a interatividade
-
-        // 1. Pegar referências dos elementos do HTML
         const rodLeft = document.getElementById('rod-left');
         const rodRight = document.getElementById('rod-right');
 
@@ -220,50 +197,35 @@
         const countLeftDisplay = document.getElementById('count-left-display');
         const countRightDisplay = document.getElementById('count-right-display');
 
-        // 2. Variáveis para guardar o estado (a contagem de discos)
         let countLeft = 0;
         let countRight = 0;
 
-        // 3. Função para atualizar os visores e botões
         function updateDisplay() {
-            // Calcula o valor total
             const total = countLeft - countRight;
             totalValueDisplay.textContent = total;
-
-            // Atualiza as contagens individuais
             countLeftDisplay.textContent = `Pretos (Positivos): ${countLeft}`;
             countRightDisplay.textContent = `Vermelhos (Negativos): ${countRight}`;
 
-            // Habilita/Desabilita botões de remoção conforme sua regra
-            // (nunca menos do que 0 discos em CADA haste)
-            removeLeftBtn.disabled = (countLeft === 0);
-            removeRightBtn.disabled = (countRight === 0);
-            
-            // Muda a cor do total se for negativo
             if (total < 0) {
-                totalValueDisplay.style.color = '#d9534f'; // Vermelho
+                totalValueDisplay.style.color = '#d9534f';
             } else if (total > 0) {
-                totalValueDisplay.style.color = '#333'; // Preto/Padrão
+                totalValueDisplay.style.color = '#333';
             } else {
-                totalValueDisplay.style.color = '#777'; // Cinza para o zero
+                totalValueDisplay.style.color = '#777';
             }
         }
 
-        // 4. Funções para adicionar e remover discos (elementos HTML)
         function addDisk(rodElement, colorClass) {
             const disk = document.createElement('div');
             disk.classList.add('disk', colorClass);
-            rodElement.appendChild(disk); // Adiciona o disco na haste
+            rodElement.appendChild(disk);
         }
 
         function removeDisk(rodElement) {
-            // 'lastChild' é o disco no topo da pilha (porque usamos flex-direction: column-reverse)
             if (rodElement.lastChild) {
                 rodElement.removeChild(rodElement.lastChild);
             }
         }
-
-        // 5. Adicionar os "Ouvintes de Eventos" (Listeners) para os cliques nos botões
 
         // Haste Esquerda (Pretos / Positivos)
         addLeftBtn.addEventListener('click', () => {
@@ -273,11 +235,15 @@
         });
 
         removeLeftBtn.addEventListener('click', () => {
-            if (countLeft > 0) { // Garante a regra "nunca menos do que 0"
+            if (countLeft > 0) {
                 countLeft--;
                 removeDisk(rodLeft);
-                updateDisplay();
+            } else {
+                // Sem positivos → adiciona um negativo
+                countRight++;
+                addDisk(rodRight, 'red');
             }
+            updateDisplay();
         });
 
         // Haste Direita (Vermelhos / Negativos)
@@ -288,16 +254,18 @@
         });
 
         removeRightBtn.addEventListener('click', () => {
-            if (countRight > 0) { // Garante a regra "nunca menos do que 0"
+            if (countRight > 0) {
                 countRight--;
                 removeDisk(rodRight);
-                updateDisplay();
+            } else {
+                // Sem negativos → adiciona um positivo
+                countLeft++;
+                addDisk(rodLeft, 'black');
             }
+            updateDisplay();
         });
 
-        // 6. Chamar a função de atualização uma vez no início para definir o estado inicial (0)
         updateDisplay();
-
     </script>
 </body>
 </html>
